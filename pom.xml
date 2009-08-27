@@ -34,6 +34,7 @@
     <profile>
       <id>examples</id>
       <modules>
+        <module>examples/scala</module>
         <module>examples/simple</module>
         <module>examples/spring</module>
         <module>examples/groovy</module>
@@ -70,6 +71,7 @@
         <groupId>org.codehaus.groovy</groupId>
         <artifactId>groovy-all</artifactId>
         <version>1.6.4</version>
+        <scope>provided</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

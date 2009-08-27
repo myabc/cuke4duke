@@ -17,7 +17,7 @@ public abstract class ProgrammingLanguage {
 
     protected abstract void load(String java_file) throws Exception;
 
-    public void addStepDefinition(StepDefinition stepDefinition) {
+    protected void addStepDefinition(StepDefinition stepDefinition) {
         stepDefinitions.add(stepDefinition);
     }
 }
