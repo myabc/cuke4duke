@@ -1,3 +1,5 @@
+package cuke4duke
+
 import collection.immutable.TreeMap
 import collection.mutable.ListBuffer
 import reflect.Manifest
@@ -41,7 +43,7 @@ BigInt 4294967294
 look, no need for parameters
  
 */
-object cucumber {
+object ScalaDsl {
  
   /*
 the different step types
@@ -156,7 +158,7 @@ shamelessly stolen from dean wampler :-)
     }
   }
  
-  final class Fun private[cucumber](f: Any, _manifests: Manifest[_]*) {
+  final class Fun private[ScalaDsl](f: Any, _manifests: Manifest[_]*) {
  
     def types = _manifests.toList.map(_.erasure)
  

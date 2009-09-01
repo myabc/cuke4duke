@@ -14,8 +14,8 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 
 public class CucumberJunit4Runner extends BlockJUnit4ClassRunner {
