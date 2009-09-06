@@ -1,20 +1,33 @@
 package simple;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import cuke4duke.Given;
+import cuke4duke.Pending;
 import cuke4duke.Table;
 import cuke4duke.Then;
 import cuke4duke.When;
-import static org.junit.Assert.assertEquals;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Arrays;
 
 // TODO: This is just testing a Map. We should have some own code to test!!
 public class StuffSteps {
     private final Map<String,Integer> cukes = new HashMap<String,Integer>();
+
+    @Pending("Let's procrastinate")
+    @Given("a pending step")
+    public void intentionallyPending() {
+        throw new RuntimeException("We shouldn't get here because we are @Pending");
+    }
+
+    @Given("a failing step that is preceded by a pending")
+    public void intentionallyFailing() {
+        throw new RuntimeException("We shouldn't get here either because the previous one is pending");
+    }
 
     @Given("I have (\\d+) (.*) cukes")
     public void iHaveNCukes(int n, String color) {
@@ -23,16 +36,16 @@ public class StuffSteps {
 
     @When("I add a table")
     public void iAddATable(Table table) {
-        table.diffLists(Arrays.asList(
-           Arrays.asList("a", "b"),
-           Arrays.asList("1", "2")
-        ));
+    	List<List<String>> diffList = new ArrayList<List<String>>();
+    	diffList.add(Arrays.asList("a", "b"));
+    	diffList.add(Arrays.asList("1", "2"));
+        table.diffLists(diffList);
         List<Map<String, String>> hashes = new ArrayList<Map<String, String>>(table.hashes());
         Map<String, String> newRow = hashes.get(0);
         hashes.add(newRow);
-        table.diffHashes(hashes, new HashMap<String, Boolean>(){{
-            put("surplus_row", false);
-        }});
+        Map<String, Boolean> hashesMap = new HashMap<String, Boolean>();
+        hashesMap.put("surplus_row", false);
+		table.diffHashes(hashes, hashesMap);
     }
 
     @When("^I add a string$") 

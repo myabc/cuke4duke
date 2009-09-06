@@ -1,14 +1,14 @@
 package cuke4duke.internal.java;
 
 import cuke4duke.*;
+import cuke4duke.internal.language.LanguageMixin;
 import cuke4duke.internal.language.ProgrammingLanguage;
 import cuke4duke.internal.language.StepDefinition;
-import cuke4duke.internal.language.StepMother;
-import cuke4duke.internal.language.LanguageMixin;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,7 +16,8 @@ public class JavaLanguage extends ProgrammingLanguage {
     private final ObjectFactory objectFactory;
     private final LanguageMixin languageMixin;
 
-    public JavaLanguage(LanguageMixin languageMixin) throws Throwable {
+    @SuppressWarnings("unchecked")
+	public JavaLanguage(LanguageMixin languageMixin) throws Throwable {
         this.languageMixin = languageMixin;
         String className = System.getProperty("cuke4duke.objectFactory");
         if(className == null) {
@@ -32,9 +33,11 @@ public class JavaLanguage extends ProgrammingLanguage {
     }
 
     protected void load(String java_file) throws ClassNotFoundException {
-        Class clazz = loadClass(java_file);
+        Class<?> clazz = loadClass(java_file);
         registerStepDefinitionsFor(clazz);
-        objectFactory.addClass(clazz);
+        if(!Modifier.isAbstract(clazz.getModifiers())) {
+            objectFactory.addClass(clazz);
+        }
     }
 
     public void begin_scenario() {
@@ -45,7 +48,7 @@ public class JavaLanguage extends ProgrammingLanguage {
         objectFactory.dispose();
     }
 
-    private Class loadClass(String javaPath) throws ClassNotFoundException {
+    private Class<?> loadClass(String javaPath) throws ClassNotFoundException {
         String withoutExt = javaPath.substring(0, javaPath.length() - ".java".length());
         String[] pathElements = withoutExt.split("\\/");
         String className = null;
@@ -63,7 +66,7 @@ public class JavaLanguage extends ProgrammingLanguage {
         throw new ClassNotFoundException("Couldn't determine class from file: " + javaPath);
     }
 
-    private void registerStepDefinitionsFor(Class clazz) {
+    private void registerStepDefinitionsFor(Class<?> clazz) {
         for (Method method : clazz.getMethods()) {
             registerStepDefinitionMaybe(method);
             registerBeforeMaybe(method);

@@ -110,6 +110,7 @@ public abstract class AbstractJRubyMojo extends AbstractMojo {
             classpath.setValue(p.toString());
 
             java.addEnv(classpath);
+            java.setCloneVm(true);
         }
 
         Environment.Variable gemPathVar = new Environment.Variable();
@@ -134,14 +135,18 @@ public abstract class AbstractJRubyMojo extends AbstractMojo {
     protected abstract String[] getJvmArgs();
 
     /**
-     * Installs a gem.
+     * Installs a gem. Sources used:
+     * <ul>
+     *   <li>http://gems.rubyforge.org</li>
+     *   <li>http://gemcutter.org</li>
+     *   <li>http://gems.github.com</li>
+     * </ul>
      *
      * @param gemSpec name and optional version and location separated by colon. Example:
-     *                <ul>
-     *                <li>name</li>
-     *                <li>name:version</li>
-     *                <li>name:version:github</li>
-     *                </ul>
+     * <ul>
+     *   <li>name</li>
+     *   <li>name:version</li>
+     * </ul>
      * @throws org.apache.maven.plugin.MojoExecutionException
      *          if gem installation fails.
      */
@@ -152,6 +157,12 @@ public abstract class AbstractJRubyMojo extends AbstractMojo {
         args.add("install");
         args.add("--no-ri");
         args.add("--no-rdoc");
+        args.add("--source");
+        args.add("http://gems.rubyforge.org");
+        args.add("--source");
+        args.add("http://gemcutter.org");
+        args.add("--source");
+        args.add("http://gems.github.com");
         args.add("--install-dir");
         args.add(gemHome().getAbsolutePath());
         args.addAll(parseGem(gemSpec));
@@ -180,7 +191,6 @@ public abstract class AbstractJRubyMojo extends AbstractMojo {
 
         String name = gem.length > 0 ? gem[0] : null;
         String version = gem.length > 1 ? gem[1] : null;
-        String source = gem.length > 2 ? gem[2] : null;
 
         if (name == null || name.trim().length() == 0) {
             throw new MojoExecutionException("Requires atleast a name for <gem>");
@@ -190,13 +200,6 @@ public abstract class AbstractJRubyMojo extends AbstractMojo {
 
         if (version != null && version.trim().length() > 0) {
             gemArgs.add("-v" + version);
-        }
-
-        if (source != null && source.trim().length() > 0) {
-            if (source.contains("github")) {
-                gemArgs.add("--source");
-                gemArgs.add("http://gems.github.com");
-            }
         }
         return gemArgs;
     }
