@@ -7,7 +7,7 @@ import org.jruby.parser.ReOptions
 
 class ScalaStepDefinition(r: String, f: Any, types: List[Class[_]]) extends StepDefinition {
 
-  def file_colon_line = "TODO: recreate function signature"
+  def file_colon_line = "TODO: recreate function signature <see Manifest.toString>"
 
   val regexp = RubyRegexp.newRegexp(JRuby.getRuntime(), r, ReOptions.RE_OPTION_LONGEST);
 
@@ -41,13 +41,13 @@ class ScalaStepDefinition(r: String, f: Any, types: List[Class[_]]) extends Step
 
   private [this] def transform(args:List[Any], types:List[Class[_]]) = {
     if(args.length != types.length){
-      error("expected "+types.length+" arguments of types "+types.mkString(",")+", but got "+args.mkString(","))
-    }else {
-      for{
-        (value, kind) <- args zip types
-      } yield {
-        value
-      }
+      def s(list:List[_]) = if(list.length != 1) "s" else ""
+      throw Cucumber.ArityMismatchError("Your block takes "+types.length+" argument" + s(types)+", but the Regexp matched "+args.length+" argument"+s(args))
+    } else {
+      for((value, kind) <- args zip types)
+        yield {
+          value
+        }
     }
   }
 

@@ -2,31 +2,36 @@ package cuke4duke
 
 class ScalaDslDemo extends ScalaDsl {
 
-  Before{
+
+  Before {
     println("do this")
   }
 
-  Before("tag1", "tag2"){
+  Before("tag1", "tag2") {
     println("tagged before")
   }
 
-  After{
+  After {
     println("after")
   }
 
-  After("tag1", "tag2"){
+  After("tag1", "tag2") {
     println("taggged after")
   }
 
-  Given("a string"){ s:String =>
+  Given("a string") { s: String =>
     println(s)
   }
 
-  When("something"){ (s:String, i:Int) =>
+  Given("a pending comment"){
+    pending("comment")
+  }
+
+  When("something") { (s: String, i: Int) =>
     println(s + " " + i)
   }
 
-  Then("some result"){ (s:String, i:Int, b:Boolean) =>
+  Then("some result") { (s: String, i: Int, b: Boolean) =>
     println(s + " " + i + " " + b)
   }
 }

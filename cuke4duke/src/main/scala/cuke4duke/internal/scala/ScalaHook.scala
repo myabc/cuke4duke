@@ -13,7 +13,8 @@ class ScalaHook(tagNames:List[String], f:() => Unit) extends AbstractHook(new Ar
 
   @throws(classOf[Throwable])
   def invoke(location: String, scenario: IRubyObject){
-    val args = RubyArray.newArray(JRuby.getRuntime());
-    args.add(scenario);
+    val args = RubyArray.newArray(JRuby.getRuntime())
+    args.add(scenario)
+    
   }
 }

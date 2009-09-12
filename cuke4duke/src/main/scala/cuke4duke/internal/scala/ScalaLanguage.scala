@@ -4,19 +4,22 @@ import cuke4duke.internal.language.{LanguageMixin, ProgrammingLanguage}
 import cuke4duke.internal.java.ObjectFactory
 import cuke4duke.ScalaDsl
 
-import _root_.java.lang.reflect.InvocationTargetException
 import _root_.java.lang.{Class, String}
+import _root_.java.lang.reflect.{Modifier, InvocationTargetException}
 
 class ScalaLanguage(languageMixin: LanguageMixin) extends ProgrammingLanguage {
+
+  val cl = Thread.currentThread().getContextClassLoader()
   val objectFactory = createObjectFactory
 
   protected[cuke4duke] def load(scala_file: String) {
     val clazz = loadClass(scala_file)
-    if (classOf[ScalaDsl].isAssignableFrom(clazz)) {
-      objectFactory.addClass(clazz)
-      //???: lifecycle mismatch! ref GroovyLanguage && JavaLanguage
-      val instance = objectFactory.getComponent(clazz).asInstanceOf[ScalaDsl]
-      addStepDefinitionsAndHooks(instance)
+    if(!Modifier.isAbstract(clazz.getModifiers())) {
+      objectFactory.addClass(clazz);
+      if (classOf[ScalaDsl].isAssignableFrom(clazz)) {
+        val scalaDsl = objectFactory.getComponent(clazz).asInstanceOf[ScalaDsl]
+        addStepDefinitionsAndHooks(scalaDsl)
+      }
     }
   }
 
@@ -32,7 +35,7 @@ class ScalaLanguage(languageMixin: LanguageMixin) extends ProgrammingLanguage {
         throw new ClassNotFoundException("Couldn't determine class from file: " + scala_path)
       else
         try {
-          Thread.currentThread().getContextClassLoader().loadClass(pe.mkString("."))
+          cl.loadClass(pe.mkString("."))
         } catch {
           case _: ClassNotFoundException => loadIt(pe.tail)
         }
@@ -41,15 +44,15 @@ class ScalaLanguage(languageMixin: LanguageMixin) extends ProgrammingLanguage {
   }
 
   private def createObjectFactory = {
-    val className = System.getProperty("cuke4duke.objectFactory");
+    val className = System.getProperty("cuke4duke.objectFactory")
     if (className == null) {
       new DefaultScalaObjectFactory
     } else {
-      val ofc = Thread.currentThread().getContextClassLoader().loadClass(className);
+      val ofc = cl.loadClass(className)
       try {
-        ofc.newInstance().asInstanceOf[ObjectFactory];
+        ofc.newInstance().asInstanceOf[ObjectFactory]
       } catch {
-        case e: InvocationTargetException => throw e.getTargetException();
+        case e: InvocationTargetException => throw e.getTargetException()
       }
     }
   }
@@ -57,8 +60,10 @@ class ScalaLanguage(languageMixin: LanguageMixin) extends ProgrammingLanguage {
   private def addStepDefinitionsAndHooks(scalaDsl: ScalaDsl) {
     for (stepDefinition <- scalaDsl.stepDefinitions)
       addStepDefinition(stepDefinition)
+
     for (before <- scalaDsl.beforeHooks)
-      languageMixin.add_hook("before", before);
+      languageMixin.add_hook("before", before)
+
     for (after <- scalaDsl.afterHooks)
       languageMixin.add_hook("after", after)
   }
