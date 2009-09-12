@@ -17,11 +17,11 @@ trait ScalaDsl {
   object When extends Step
   object Then extends Step
 
-  def before(f: => Unit) = ()
-  def before(tags: String*)(f: => Unit) = ()
+  def Before(f: => Unit) = beforeHooks += new ScalaHook(Nil, f _)
+  def Before(tags: String*)(f: => Unit) = beforeHooks += new ScalaHook(tags.toList, f _)
 
-  def after(f: => Unit) = ()
-  def after(tags: String*)(f: => Unit) = ()
+  def After(f: => Unit) = afterHooks += new ScalaHook(Nil, f _)
+  def After(tags: String*)(f: => Unit) = afterHooks += new ScalaHook(tags.toList, f _)
 
   sealed trait Step {
     def apply(regex:String) = new {
