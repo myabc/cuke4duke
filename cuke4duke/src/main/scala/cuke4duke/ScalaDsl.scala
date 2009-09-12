@@ -2,7 +2,9 @@ package cuke4duke
 
 import _root_.scala.collection.mutable.ListBuffer
 import _root_.scala.reflect.Manifest
-import internal.scala.{ScalaHook, ScalaStepDefinition}
+import internal.JRuby
+import internal.scala.{Cucumber, ScalaHook, ScalaStepDefinition}
+import org.jruby.exceptions.RaiseException
 
 /*
   <yourclass> {extends|with} ScalaDsl
@@ -23,9 +25,11 @@ trait ScalaDsl {
   def After(f: => Unit) = afterHooks += new ScalaHook(Nil, f _)
   def After(tags: String*)(f: => Unit) = afterHooks += new ScalaHook(tags.toList, f _)
 
+  def pending(message:String){ throw Cucumber.Pending(message) }
+
   sealed trait Step {
     def apply(regex:String) = new {
-      def apply(fun: => Unit):Unit = apply(f0toFun(() => fun))
+      def apply(f: => Unit):Unit = apply(f0toFun(f _))
       def apply(fun:Fun) = stepDefinitions += new ScalaStepDefinition(regex, fun.f, fun.types)
     }
   }
