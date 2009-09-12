@@ -2,7 +2,6 @@ package cuke4duke
 
 class ScalaDslDemo extends ScalaDsl {
 
-
   Before {
     println("do this")
   }
