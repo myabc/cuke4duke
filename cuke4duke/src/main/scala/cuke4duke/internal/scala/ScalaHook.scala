@@ -13,8 +13,10 @@ class ScalaHook(tagNames:List[String], f:() => Unit) extends AbstractHook(new Ar
 
   @throws(classOf[Throwable])
   def invoke(location: String, scenario: IRubyObject){
+    //hvorfor ruby array ?, semantic i forbindelse med add ?
     val args = RubyArray.newArray(JRuby.getRuntime())
     args.add(scenario)
-    
+    //legg til støtte for f:(Scenario => Unit)
+    f()
   }
 }

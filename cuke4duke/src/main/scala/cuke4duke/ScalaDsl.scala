@@ -5,6 +5,7 @@ import _root_.scala.reflect.Manifest
 import internal.JRuby
 import internal.scala.{Cucumber, ScalaHook, ScalaStepDefinition}
 import org.jruby.exceptions.RaiseException
+import collection.immutable.TreeMap
 
 /*
   <yourclass> {extends|with} ScalaDsl
@@ -26,11 +27,51 @@ trait ScalaDsl {
   def After(tags: String*)(f: => Unit) = afterHooks += new ScalaHook(tags.toList, f _)
 
   def pending(message:String){ throw Cucumber.Pending(message) }
+  def pending{ pending("TODO") }
+
+  /* conversions */
+  private implicit def orderedClass(a:Class[_]) = new Ordered[Class[_]]{
+    def compare(that: Class[_]) = {
+      if(a == that) 0
+      else if(that.isAssignableFrom(a)) 1
+      else -1
+      }
+    }
+
+  private var conversions = new TreeMap[Class[_], String => Option[_]]
+
+  private def attempt[T](conversion:String => Option[T]) =
+      (s:String) => {
+        try{
+          conversion(s)
+        } catch {
+          case _ => None
+        }
+      }
+
+  def convert[T](f:String => Option[T])(implicit m:Manifest[T]){
+    conversions = conversions.insert(m.erasure, attempt(f))
+  }
+
+  //default conversions
+  convert[Int](x => Some(x.toInt))
+  convert[Long](x => Some(x.toLong))
+  convert[String](x => Some(x))
+  convert[Double](x => Some(x.toDouble))
+  convert[Float](x => Some(x.toFloat))
+  convert[Short](x => Some(x.toShort))
+  convert[Byte](x => Some(x.toByte))
+  convert[BigDecimal](x => Some(BigDecimal(x)))
+  convert[BigInt](x => Some(BigInt(x)))
+  convert[Char](x => if(x.length == 1) Some(x.charAt(0)) else None)
+  convert[Boolean](x => Some(x.toBoolean))
+
+  /**/
 
   sealed trait Step {
     def apply(regex:String) = new {
       def apply(f: => Unit):Unit = apply(f0toFun(f _))
-      def apply(fun:Fun) = stepDefinitions += new ScalaStepDefinition(regex, fun.f, fun.types)
+      def apply(fun:Fun) = stepDefinitions += new ScalaStepDefinition(regex, fun.f, fun.types, conversions)
     }
   }
 
