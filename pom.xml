@@ -38,6 +38,7 @@
         <module>examples/spring</module>
         <module>examples/groovy</module>
         <module>examples/webtest</module>
+        <module>examples/scala</module>
       </modules>
     </profile>
   </profiles>
