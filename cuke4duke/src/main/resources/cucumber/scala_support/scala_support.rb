@@ -21,18 +21,12 @@ module Cucumber
         escaped = Regexp.escape(step_name).gsub('\ ', ' ').gsub('/', '\/')
         escaped = escaped.gsub(PARAM_PATTERN, ESCAPED_PARAM_PATTERN)
 
-        method_name = Iconv.iconv('ascii//ignore//translit', 'utf-8', step_name).to_s
-        method_name = method_name.gsub(/["\s]+/, '_')
-        method_name = method_name.gsub(/_+/, '_')
-        method_name = method_name.gsub(/(?:^|_)(.)/) { $1.upcase }
-        method_name = method_name[0..0].downcase + (method_name[1..-1] || "")       
-
         n = 0
         args = escaped.scan(ESCAPED_PARAM_PATTERN).map do |a|
           n += 1
           "arg#{n}:String"
         end
-        args << "#{multiline_arg_class.default_arg_name}:cuke4duke.Table" unless multiline_arg_class.nil?
+        args << "#{multiline_arg_class.default_arg_name}:TODO.Table" unless multiline_arg_class.nil?
         arg_string = args.join(", ")
         
         %(#{step_keyword}("^#{escaped}$") { #{arg_string} =>\n  pending\n}\n)                
