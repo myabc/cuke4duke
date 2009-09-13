@@ -12,7 +12,7 @@ class StackStepDefinitions extends ScalaDsl {
 
   }
 
-  Given("I push \"(\\\d+)\" onto the stack") { num:Int =>
+  Given("""I push "(\d+)" onto the stack""") { num:Int =>
 
 
   }
