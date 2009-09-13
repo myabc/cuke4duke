@@ -14,12 +14,10 @@ class ScalaLanguage(languageMixin: LanguageMixin) extends ProgrammingLanguage {
 
   protected[cuke4duke] def load(scala_file: String) {
     val clazz = loadClass(scala_file)
-    if(!Modifier.isAbstract(clazz.getModifiers())) {
+    if(!Modifier.isAbstract(clazz.getModifiers()) && classOf[ScalaDsl].isAssignableFrom(clazz)) {
       objectFactory.addClass(clazz);
-      if (classOf[ScalaDsl].isAssignableFrom(clazz)) {
-        val scalaDsl = objectFactory.getComponent(clazz).asInstanceOf[ScalaDsl]
-        addStepDefinitionsAndHooks(scalaDsl)
-      }
+      val scalaDsl = objectFactory.getComponent(clazz).asInstanceOf[ScalaDsl]
+      addStepDefinitionsAndHooks(scalaDsl)
     }
   }
 
