@@ -4,15 +4,16 @@ import cuke4duke.internal.language.StepDefinition
 import org.jruby.{RubyRegexp, RubyArray}
 import cuke4duke.internal.JRuby
 import org.jruby.parser.ReOptions
+import collection.immutable.TreeMap
 
-class ScalaStepDefinition(r: String, f: Any, types: List[Class[_]]) extends StepDefinition {
+class ScalaStepDefinition(r: String, f: Any, types: List[Class[_]], conversions:TreeMap[Class[_], String => Option[_]]) extends StepDefinition {
 
   def file_colon_line = "TODO: recreate function signature <see Manifest.toString>"
 
   val regexp = RubyRegexp.newRegexp(JRuby.getRuntime(), r, ReOptions.RE_OPTION_LONGEST);
 
   def invoke(ra: RubyArray) {
-    transform(ra.toArray.toList, types) match {
+    transform(ra.toArray.toList.map(_.toString), types) match {
       case List() => f.asInstanceOf[Function0[_]]()
       case List(t1) => f.asInstanceOf[Function1[Any, _]](t1)
       case List(t1, t2) => f.asInstanceOf[Function2[Any, Any, _]](t1, t2)
@@ -39,16 +40,27 @@ class ScalaStepDefinition(r: String, f: Any, types: List[Class[_]]) extends Step
     }
   }
 
-  private [this] def transform(args:List[Any], types:List[Class[_]]) = {
+  private [this] def transform(args:List[String], types:List[Class[_]]) = {
     if(args.length != types.length){
       def s(list:List[_]) = if(list.length != 1) "s" else ""
       throw Cucumber.ArityMismatchError("Your block takes "+types.length+" argument" + s(types)+", but the Regexp matched "+args.length+" argument"+s(args))
     } else {
       for((value, kind) <- args zip types)
         yield {
-          value
+          convert(value, kind).getOrElse(throw Cucumber.Undefined("No conversion defined from value '"+value+"' to "+kind))
         }
     }
   }
+
+  private def convert(value:String, to:Class[_]):Option[_] = {
+      val start:Option[_] = if(to.isAssignableFrom(value.getClass)) Some(value) else None
+
+      (start /: conversions.elements){ (acc, entry) =>
+        acc match {
+          case None if to.isAssignableFrom(entry._1) => entry._2(value)
+          case _ => acc
+        }
+      }
+    }
 
 }

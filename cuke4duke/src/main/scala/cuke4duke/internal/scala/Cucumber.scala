@@ -13,4 +13,6 @@ object Cucumber {
   def Pending(message:String) = error("Pending", message)
 
   def ArityMismatchError(message:String) = error("ArityMismatchError", message)
+
+  def Undefined(message:String) = error("Undefined", message)
 }
