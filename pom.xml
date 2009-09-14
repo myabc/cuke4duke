@@ -34,11 +34,11 @@
     <profile>
       <id>examples</id>
       <modules>
+        <!-- <module>examples/scala</module> -->
         <module>examples/simple</module>
         <module>examples/spring</module>
         <module>examples/groovy</module>
         <module>examples/webtest</module>
-        <module>examples/scala</module>
       </modules>
     </profile>
   </profiles>
@@ -77,6 +77,7 @@
         <groupId>org.scala-lang</groupId>
         <artifactId>scala-library</artifactId>
         <version>2.7.5</version>
+        <scope>provided</scope>
     </dependency>
     </dependencies>
   </dependencyManagement>
