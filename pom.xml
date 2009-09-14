@@ -34,7 +34,7 @@
     <profile>
       <id>examples</id>
       <modules>
-        <!-- <module>examples/scala</module> -->
+        <module>examples/scala</module>
         <module>examples/simple</module>
         <module>examples/spring</module>
         <module>examples/groovy</module>
